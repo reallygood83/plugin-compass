@@ -1,0 +1,10 @@
+{
+  "id": "plugin-compass",
+  "name": "Plugin Compass",
+  "version": "0.1.0",
+  "minAppVersion": "1.5.0",
+  "description": "Modal-first plugin recommendation wizard with KO/EN and Gemini/Cerebras support.",
+  "author": "reallygood83",
+  "authorUrl": "https://github.com/reallygood83",
+  "isDesktopOnly": false
+}
