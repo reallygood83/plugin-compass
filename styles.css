@@ -1,18 +1,59 @@
-.plugin-compass-grid {
+.plugin-compass-root {
+  min-width: 860px;
+}
+
+.plugin-compass-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.plugin-compass-tabs button {
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.plugin-compass-tabs button.is-active {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.plugin-compass-body {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-.plugin-compass-section {
+.plugin-compass-controls {
   border: 1px solid var(--background-modifier-border);
   border-radius: 10px;
-  padding: 12px;
+  padding: 10px;
+}
+
+.plugin-compass-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.plugin-compass-table th,
+.plugin-compass-table td {
+  border-bottom: 1px solid var(--background-modifier-border);
+  padding: 6px;
+  text-align: left;
+}
+
+.plugin-compass-table tr:hover {
+  background: var(--background-secondary);
+  cursor: pointer;
 }
 
 .plugin-compass-card {
   border: 1px solid var(--background-modifier-border);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px;
-  margin-bottom: 8px;
+}
+
+.plugin-compass-warning {
+  color: var(--text-warning);
+  font-size: 12px;
 }
