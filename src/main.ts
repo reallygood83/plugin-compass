@@ -115,6 +115,11 @@ class CompassModal extends Modal {
   }
 
   private renderSetup(el: HTMLElement) {
+    const intro = el.createDiv({ cls: 'plugin-compass-card' });
+    intro.createEl('h3', { text: this.t('What Plugin Compass does') });
+    intro.createEl('p', { text: this.t('It helps you discover Obsidian plugins with clear pros/cons, then generates a setup plan in Korean or English.') });
+    intro.createEl('p', { text: this.t('Flow: Setup → Discover → Recommend → Export plan / Weekly update.') });
+
     new Setting(el)
       .setName(this.t('Language'))
       .addDropdown((d) =>
@@ -200,6 +205,7 @@ class CompassModal extends Modal {
   }
 
   private renderDiscover(el: HTMLElement) {
+    el.createEl('p', { text: this.t('Tip: click a plugin row to see details and install actions below.') });
     const controls = el.createDiv({ cls: 'plugin-compass-controls' });
     const categories = getCategories();
 
@@ -356,6 +362,9 @@ class CompassModal extends Modal {
       Discover: '탐색',
       Recommend: '추천',
       'Weekly Update': '주간 업데이트',
+      'What Plugin Compass does': 'Plugin Compass가 하는 일',
+      'It helps you discover Obsidian plugins with clear pros/cons, then generates a setup plan in Korean or English.': 'Obsidian 플러그인을 장단점 중심으로 쉽게 탐색하고, 한국어/영어 설치 플랜을 생성합니다.',
+      'Flow: Setup → Discover → Recommend → Export plan / Weekly update.': '흐름: 설정 → 탐색 → 추천 → 설치 플랜 내보내기 / 주간 업데이트',
       Language: '언어',
       'LLM Provider': 'LLM 제공자',
       'Use LLM enhancement': 'LLM 개선 사용',
@@ -390,7 +399,8 @@ class CompassModal extends Modal {
       'Run update now': '지금 업데이트 실행',
       'Toggle mask': '마스킹 전환',
       'Stored in local plugin settings.': '로컬 플러그인 설정에 저장됩니다.',
-      'Obsidian security policy may require manual enable after opening installer.': 'Obsidian 보안 정책상 설치창을 열어도 수동 활성화가 필요할 수 있습니다.'
+      'Obsidian security policy may require manual enable after opening installer.': 'Obsidian 보안 정책상 설치창을 열어도 수동 활성화가 필요할 수 있습니다.',
+      'Tip: click a plugin row to see details and install actions below.': '팁: 플러그인 행을 클릭하면 아래에 상세정보와 설치 동작이 나타납니다.'
     };
     return ko[input] ?? input;
   }

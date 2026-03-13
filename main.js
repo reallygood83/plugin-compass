@@ -7438,6 +7438,10 @@ var CompassModal = class extends import_obsidian.Modal {
     };
   }
   renderSetup(el) {
+    const intro = el.createDiv({ cls: "plugin-compass-card" });
+    intro.createEl("h3", { text: this.t("What Plugin Compass does") });
+    intro.createEl("p", { text: this.t("It helps you discover Obsidian plugins with clear pros/cons, then generates a setup plan in Korean or English.") });
+    intro.createEl("p", { text: this.t("Flow: Setup \u2192 Discover \u2192 Recommend \u2192 Export plan / Weekly update.") });
     new import_obsidian.Setting(el).setName(this.t("Language")).addDropdown(
       (d) => d.addOption("ko", "\uD55C\uAD6D\uC5B4").addOption("en", "English").setValue(this.plugin.settings.language).onChange(async (v) => {
         this.plugin.settings.language = v;
@@ -7500,6 +7504,7 @@ var CompassModal = class extends import_obsidian.Modal {
     );
   }
   renderDiscover(el) {
+    el.createEl("p", { text: this.t("Tip: click a plugin row to see details and install actions below.") });
     const controls = el.createDiv({ cls: "plugin-compass-controls" });
     const categories = getCategories();
     new import_obsidian.Setting(controls).setName(this.t("Search")).addText((t) => t.setPlaceholder("dataview, task...").onChange((v) => {
@@ -7662,6 +7667,9 @@ var CompassModal = class extends import_obsidian.Modal {
       Discover: "\uD0D0\uC0C9",
       Recommend: "\uCD94\uCC9C",
       "Weekly Update": "\uC8FC\uAC04 \uC5C5\uB370\uC774\uD2B8",
+      "What Plugin Compass does": "Plugin Compass\uAC00 \uD558\uB294 \uC77C",
+      "It helps you discover Obsidian plugins with clear pros/cons, then generates a setup plan in Korean or English.": "Obsidian \uD50C\uB7EC\uADF8\uC778\uC744 \uC7A5\uB2E8\uC810 \uC911\uC2EC\uC73C\uB85C \uC27D\uAC8C \uD0D0\uC0C9\uD558\uACE0, \uD55C\uAD6D\uC5B4/\uC601\uC5B4 \uC124\uCE58 \uD50C\uB79C\uC744 \uC0DD\uC131\uD569\uB2C8\uB2E4.",
+      "Flow: Setup \u2192 Discover \u2192 Recommend \u2192 Export plan / Weekly update.": "\uD750\uB984: \uC124\uC815 \u2192 \uD0D0\uC0C9 \u2192 \uCD94\uCC9C \u2192 \uC124\uCE58 \uD50C\uB79C \uB0B4\uBCF4\uB0B4\uAE30 / \uC8FC\uAC04 \uC5C5\uB370\uC774\uD2B8",
       Language: "\uC5B8\uC5B4",
       "LLM Provider": "LLM \uC81C\uACF5\uC790",
       "Use LLM enhancement": "LLM \uAC1C\uC120 \uC0AC\uC6A9",
@@ -7696,7 +7704,8 @@ var CompassModal = class extends import_obsidian.Modal {
       "Run update now": "\uC9C0\uAE08 \uC5C5\uB370\uC774\uD2B8 \uC2E4\uD589",
       "Toggle mask": "\uB9C8\uC2A4\uD0B9 \uC804\uD658",
       "Stored in local plugin settings.": "\uB85C\uCEEC \uD50C\uB7EC\uADF8\uC778 \uC124\uC815\uC5D0 \uC800\uC7A5\uB429\uB2C8\uB2E4.",
-      "Obsidian security policy may require manual enable after opening installer.": "Obsidian \uBCF4\uC548 \uC815\uCC45\uC0C1 \uC124\uCE58\uCC3D\uC744 \uC5F4\uC5B4\uB3C4 \uC218\uB3D9 \uD65C\uC131\uD654\uAC00 \uD544\uC694\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
+      "Obsidian security policy may require manual enable after opening installer.": "Obsidian \uBCF4\uC548 \uC815\uCC45\uC0C1 \uC124\uCE58\uCC3D\uC744 \uC5F4\uC5B4\uB3C4 \uC218\uB3D9 \uD65C\uC131\uD654\uAC00 \uD544\uC694\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+      "Tip: click a plugin row to see details and install actions below.": "\uD301: \uD50C\uB7EC\uADF8\uC778 \uD589\uC744 \uD074\uB9AD\uD558\uBA74 \uC544\uB798\uC5D0 \uC0C1\uC138\uC815\uBCF4\uC640 \uC124\uCE58 \uB3D9\uC791\uC774 \uB098\uD0C0\uB0A9\uB2C8\uB2E4."
     };
     return ko[input] ?? input;
   }
