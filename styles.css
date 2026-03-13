@@ -1,5 +1,37 @@
 .plugin-compass-root {
-  min-width: 860px;
+  width: min(96vw, 980px);
+}
+
+.plugin-compass-root .setting-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.plugin-compass-root .setting-item-info {
+  min-width: 220px;
+  flex: 1 1 220px;
+}
+
+.plugin-compass-root .setting-item-control {
+  flex: 1 1 260px;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 720px) {
+  .plugin-compass-root {
+    width: 96vw;
+  }
+
+  .plugin-compass-root .setting-item {
+    display: block;
+  }
+
+  .plugin-compass-root .setting-item-control {
+    margin-top: 8px;
+    justify-content: flex-start;
+  }
 }
 
 .plugin-compass-tabs {

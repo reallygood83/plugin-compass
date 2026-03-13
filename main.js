@@ -7556,12 +7556,16 @@ var CompassModal = class extends import_obsidian.Modal {
     card.createEl("p", { text: `${this.t("Pros")}: ${p.pros[this.plugin.settings.language].join(", ")}` });
     card.createEl("p", { text: `${this.t("Cons")}: ${p.cons[this.plugin.settings.language].join(", ")}` });
     card.createEl("p", { text: `Tags: ${p.tags.join(", ")}` });
+    card.createEl("p", { cls: "plugin-compass-warning", text: this.t("Obsidian security policy may require manual enable after opening installer.") });
     new import_obsidian.Setting(card).setName(this.t("Plugin URL")).setDesc(p.pluginUrl).addButton((b) => b.setButtonText(this.t("Copy ID link")).onClick(async () => {
       await navigator.clipboard.writeText(p.pluginUrl);
       new import_obsidian.Notice(this.t("Copied"));
     }));
-    new import_obsidian.Setting(card).setName(this.t("Install command")).setDesc(`obsidian://show-plugin?id=${p.id}`).addButton((b) => b.setButtonText(this.t("Copy command")).setCta().onClick(async () => {
-      await navigator.clipboard.writeText(`obsidian://show-plugin?id=${p.id}`);
+    const installUri = `obsidian://show-plugin?id=${p.id}`;
+    new import_obsidian.Setting(card).setName(this.t("Install command")).setDesc(installUri).addButton((b) => b.setButtonText(this.t("Open installer")).setCta().onClick(() => {
+      window.open(installUri, "_blank");
+    })).addButton((b) => b.setButtonText(this.t("Copy command")).onClick(async () => {
+      await navigator.clipboard.writeText(installUri);
       new import_obsidian.Notice(this.t("Copied"));
     }));
   }
@@ -7673,6 +7677,7 @@ var CompassModal = class extends import_obsidian.Modal {
       "Plugin URL": "\uD50C\uB7EC\uADF8\uC778 URL",
       "Copy ID link": "ID \uB9C1\uD06C \uBCF5\uC0AC",
       "Install command": "\uC124\uCE58 \uBA85\uB839",
+      "Open installer": "\uC124\uCE58\uCC3D \uC5F4\uAE30",
       "Copy command": "\uBA85\uB839 \uBCF5\uC0AC",
       Copied: "\uBCF5\uC0AC \uC644\uB8CC",
       Purpose: "\uBAA9\uC801",
@@ -7690,7 +7695,8 @@ var CompassModal = class extends import_obsidian.Modal {
       "Weekly report folder": "\uC8FC\uAC04 \uB9AC\uD3EC\uD2B8 \uD3F4\uB354",
       "Run update now": "\uC9C0\uAE08 \uC5C5\uB370\uC774\uD2B8 \uC2E4\uD589",
       "Toggle mask": "\uB9C8\uC2A4\uD0B9 \uC804\uD658",
-      "Stored in local plugin settings.": "\uB85C\uCEEC \uD50C\uB7EC\uADF8\uC778 \uC124\uC815\uC5D0 \uC800\uC7A5\uB429\uB2C8\uB2E4."
+      "Stored in local plugin settings.": "\uB85C\uCEEC \uD50C\uB7EC\uADF8\uC778 \uC124\uC815\uC5D0 \uC800\uC7A5\uB429\uB2C8\uB2E4.",
+      "Obsidian security policy may require manual enable after opening installer.": "Obsidian \uBCF4\uC548 \uC815\uCC45\uC0C1 \uC124\uCE58\uCC3D\uC744 \uC5F4\uC5B4\uB3C4 \uC218\uB3D9 \uD65C\uC131\uD654\uAC00 \uD544\uC694\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4."
     };
     return ko[input] ?? input;
   }

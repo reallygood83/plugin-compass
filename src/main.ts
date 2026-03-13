@@ -237,6 +237,7 @@ class CompassModal extends Modal {
     card.createEl('p', { text: `${this.t('Pros')}: ${p.pros[this.plugin.settings.language].join(', ')}` });
     card.createEl('p', { text: `${this.t('Cons')}: ${p.cons[this.plugin.settings.language].join(', ')}` });
     card.createEl('p', { text: `Tags: ${p.tags.join(', ')}` });
+    card.createEl('p', { cls: 'plugin-compass-warning', text: this.t('Obsidian security policy may require manual enable after opening installer.') });
 
     new Setting(card)
       .setName(this.t('Plugin URL'))
@@ -246,11 +247,16 @@ class CompassModal extends Modal {
         new Notice(this.t('Copied'));
       }));
 
+    const installUri = `obsidian://show-plugin?id=${p.id}`;
+
     new Setting(card)
       .setName(this.t('Install command'))
-      .setDesc(`obsidian://show-plugin?id=${p.id}`)
-      .addButton((b) => b.setButtonText(this.t('Copy command')).setCta().onClick(async () => {
-        await navigator.clipboard.writeText(`obsidian://show-plugin?id=${p.id}`);
+      .setDesc(installUri)
+      .addButton((b) => b.setButtonText(this.t('Open installer')).setCta().onClick(() => {
+        window.open(installUri, '_blank');
+      }))
+      .addButton((b) => b.setButtonText(this.t('Copy command')).onClick(async () => {
+        await navigator.clipboard.writeText(installUri);
         new Notice(this.t('Copied'));
       }));
   }
@@ -365,6 +371,7 @@ class CompassModal extends Modal {
       'Plugin URL': '플러그인 URL',
       'Copy ID link': 'ID 링크 복사',
       'Install command': '설치 명령',
+      'Open installer': '설치창 열기',
       'Copy command': '명령 복사',
       Copied: '복사 완료',
       Purpose: '목적',
@@ -382,7 +389,8 @@ class CompassModal extends Modal {
       'Weekly report folder': '주간 리포트 폴더',
       'Run update now': '지금 업데이트 실행',
       'Toggle mask': '마스킹 전환',
-      'Stored in local plugin settings.': '로컬 플러그인 설정에 저장됩니다.'
+      'Stored in local plugin settings.': '로컬 플러그인 설정에 저장됩니다.',
+      'Obsidian security policy may require manual enable after opening installer.': 'Obsidian 보안 정책상 설치창을 열어도 수동 활성화가 필요할 수 있습니다.'
     };
     return ko[input] ?? input;
   }
