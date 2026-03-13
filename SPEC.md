@@ -1,67 +1,62 @@
-# Plugin Compass Spec (v0.1)
+# Plugin Compass Spec (v0.9)
 
-## 1. Product Goal
-Plugin Compass helps users choose the right Obsidian community plugins via a **modal-first wizard**.
-It provides easy-to-understand:
-- Pros / Cons
-- Recommendation level
-- KO/EN output
+## 1) Product Goal
+Deliver a near-production Obsidian plugin recommendation assistant with bilingual UX and actionable setup guidance.
 
-## 2. UX Principle
-- Most actions should be possible inside one modal.
-- Settings, profile input, and recommendation output are all accessible in the modal.
-- Settings tab remains minimal (just opens modal).
+## 2) Scope Delivered
+### Data Layer
+- `src/plugins.json` expanded to **160 curated entries**.
+- Metadata includes:
+  - `summary.ko/en`
+  - `pros.ko/en`, `cons.ko/en`
+  - `tags`, `category`, `difficulty`
+  - `beginnerFit`, `mobileSupport`, `recommendationScore`
+  - `pluginUrl`
 
-## 3. Core Features
-1) Modal-first recommendation wizard
-2) KO/EN language toggle
-3) Plugin cards with pros/cons
-4) LLM enhancement option for summary rewrite
-5) LLM provider selection: `Gemini` / `Cerebras`
+### Modal UX
+Tabbed modal with 4 tabs:
+1. **Setup**
+2. **Discover**
+3. **Recommend**
+4. **Weekly Update**
 
-## 4. LLM Integration (as of 2026-03-13 docs check)
-### Gemini
-- Endpoint: `POST https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key=...`
-- Default model: `gemini-2.5-flash` (editable)
-- Docs:
-  - https://ai.google.dev/gemini-api/docs/libraries
-  - https://ai.google.dev/api/generate-content
+Discover includes search, filters (category/difficulty/mobile), sortable list/table behavior, and detailed plugin card.
 
-### Cerebras
-- Endpoint: `POST https://api.cerebras.ai/v1/chat/completions` (OpenAI-compatible)
-- Default model: `llama-3.3-70b` (editable)
-- Docs:
-  - https://inference-docs.cerebras.ai/resources/openai
+### Installation Helper UX
+- One-click copy plugin ID links
+- One-click copy install command snippets (`obsidian://show-plugin?id=...`)
+- Exportable setup-plan markdown note in vault
 
-## 5. Security Notes
-- API keys are stored in plugin settings data (local Obsidian vault context).
-- Users should avoid sharing vault/plugin data with plaintext keys.
-- Future: add optional key masking and external key manager support.
+### Weekly Update Scaffolding
+- Command: `Run weekly metadata update scaffold`
+- Reads configured source URLs
+- Attempts fetch checks with timeout
+- Generates weekly report markdown
+- Safe fallback when network requests fail
 
-## 6. Recommendation Engine (v0.1)
-- Rule-based scoring from profile fields:
-  - purpose: research / writing / productivity
-  - beginner mode: true/false
-- Top-5 plugins returned from local sample dataset.
+### Settings Security + Reliability
+- Masked API key fields (toggle)
+- Warning copy around plaintext key safety
+- Gemini/Cerebras model names remain configurable
+- Timeout-controlled LLM requests + robust errors
 
-## 7. Data Layer Roadmap
-- v0.1: embedded sample DB (5 plugins)
-- v0.2: JSON dataset expansion (150+)
-- v0.3: weekly auto-update pipeline (index + maintenance signals)
+## 3) Architecture
+- `src/main.ts`: plugin bootstrap, commands, modal tabs, weekly update workflow
+- `src/types.ts`: expanded typed models
+- `src/data.ts`: plugin data loading and category helpers
+- `src/recommender.ts`: profile-aware recommendation scoring
+- `src/llm.ts`: provider calls with timeout/error wrappers
 
-## 8. Weekly Automation Plan (next milestone)
-- Weekly job script to refresh plugin metadata
-- Recompute recommendation scores
-- Generate weekly markdown report in vault
+## 4) Non-Goals (for this milestone)
+- Full official plugin registry sync parser
+- Background scheduler daemon
+- Auto-install without user interaction
 
-## 9. File Structure
-- `src/main.ts` modal UX + plugin bootstrap
-- `src/data.ts` sample plugin dataset
-- `src/recommender.ts` rule-based recommendation logic
-- `src/llm.ts` Gemini/Cerebras API clients
-- `manifest.json`, `styles.css`
+## 5) Quality Gates
+- Type check: `npm run check`
+- Build: `npm run build`
 
-## 10. Known Constraints
-- No full automatic community-plugin install in v0.1
-- LLM usage optional, disabled by default
-- API model names are user-editable to avoid provider-side model lifecycle breakage
+## 6) Future Work
+- Real registry parser + delta updates
+- Recommendation explainability panel
+- Preset packs by persona (writer/researcher/student)
