@@ -78,6 +78,7 @@ class CompassModal extends Modal {
   }
 
   onOpen(): void {
+    this.modalEl.addClass('plugin-compass-modal');
     this.render();
   }
 
@@ -223,7 +224,8 @@ class CompassModal extends Modal {
     const list = this.filteredPlugins();
     el.createEl('p', { text: `${list.length} plugins` });
 
-    const table = el.createEl('table', { cls: 'plugin-compass-table' });
+    const tableWrap = el.createDiv({ cls: 'plugin-compass-table-wrap' });
+    const table = tableWrap.createEl('table', { cls: 'plugin-compass-table' });
     const head = table.createEl('thead').createEl('tr');
     ['Name', 'Category', 'Difficulty', 'Mobile', 'Score'].forEach((x) => head.createEl('th', { text: x }));
     const body = table.createEl('tbody');

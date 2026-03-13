@@ -7407,6 +7407,7 @@ var CompassModal = class extends import_obsidian.Modal {
     this.plugin = plugin;
   }
   onOpen() {
+    this.modalEl.addClass("plugin-compass-modal");
     this.render();
   }
   render() {
@@ -7531,7 +7532,8 @@ var CompassModal = class extends import_obsidian.Modal {
     };
     const list = this.filteredPlugins();
     el.createEl("p", { text: `${list.length} plugins` });
-    const table = el.createEl("table", { cls: "plugin-compass-table" });
+    const tableWrap = el.createDiv({ cls: "plugin-compass-table-wrap" });
+    const table = tableWrap.createEl("table", { cls: "plugin-compass-table" });
     const head = table.createEl("thead").createEl("tr");
     ["Name", "Category", "Difficulty", "Mobile", "Score"].forEach((x) => head.createEl("th", { text: x }));
     const body = table.createEl("tbody");

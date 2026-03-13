@@ -1,5 +1,15 @@
+.plugin-compass-modal {
+  width: min(96vw, 1200px);
+  height: min(92vh, 920px);
+}
+
+.plugin-compass-modal .modal-content {
+  max-height: calc(92vh - 40px);
+  overflow: auto;
+}
+
 .plugin-compass-root {
-  width: min(96vw, 980px);
+  width: 100%;
 }
 
 .plugin-compass-tabs {
@@ -47,8 +57,13 @@
   padding: 10px;
 }
 
+.plugin-compass-table-wrap {
+  overflow: auto;
+}
+
 .plugin-compass-table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
 }
 
