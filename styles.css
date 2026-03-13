@@ -24,6 +24,23 @@
   gap: 12px;
 }
 
+.plugin-compass-field {
+  display: grid;
+  gap: 6px;
+}
+
+.plugin-compass-field input,
+.plugin-compass-field select,
+.plugin-compass-field textarea {
+  width: 100%;
+}
+
+.plugin-compass-btnrow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .plugin-compass-controls {
   border: 1px solid var(--background-modifier-border);
   border-radius: 10px;

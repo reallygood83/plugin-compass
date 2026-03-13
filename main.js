@@ -7382,8 +7382,7 @@ var PluginCompassPlugin = class extends import_obsidian.Plugin {
         summary.push(`- \u26A0\uFE0F ${url} (fallback: ${error?.message ?? "network error"})`);
       }
     }
-    const now = /* @__PURE__ */ new Date();
-    const iso = now.toISOString().slice(0, 10);
+    const iso = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
     const md = `# Plugin Compass Weekly Update (${iso})
 
 ## Dataset
@@ -7392,10 +7391,6 @@ var PluginCompassPlugin = class extends import_obsidian.Plugin {
 
 ## Source check
 ${summary.join("\n") || "- (no URLs configured)"}
-
-## Notes
-- This is scaffolding mode: keeps recommendations available even when network fetch fails.
-- Safe fallback used by default.
 `;
     const filePath = `${reportFolder}/plugin-compass-weekly-${iso}.md`;
     await this.app.vault.adapter.write(filePath, md);
@@ -7437,110 +7432,110 @@ var CompassModal = class extends import_obsidian.Modal {
       this.render();
     };
   }
+  field(parent, label) {
+    const row = parent.createDiv({ cls: "plugin-compass-field" });
+    row.createEl("label", { text: label });
+    return row;
+  }
   renderSetup(el) {
     const intro = el.createDiv({ cls: "plugin-compass-card" });
     intro.createEl("h3", { text: this.t("What Plugin Compass does") });
     intro.createEl("p", { text: this.t("It helps you discover Obsidian plugins with clear pros/cons, then generates a setup plan in Korean or English.") });
-    intro.createEl("p", { text: this.t("Flow: Setup \u2192 Discover \u2192 Recommend \u2192 Export plan / Weekly update.") });
-    new import_obsidian.Setting(el).setName(this.t("Language")).addDropdown(
-      (d) => d.addOption("ko", "\uD55C\uAD6D\uC5B4").addOption("en", "English").setValue(this.plugin.settings.language).onChange(async (v) => {
-        this.plugin.settings.language = v;
-        await this.plugin.saveSettings();
-        this.render();
-      })
-    );
-    new import_obsidian.Setting(el).setName(this.t("LLM Provider")).addDropdown(
-      (d) => d.addOption("none", "None").addOption("gemini", "Gemini").addOption("cerebras", "Cerebras").setValue(this.plugin.settings.provider).onChange(async (v) => {
-        this.plugin.settings.provider = v;
-        await this.plugin.saveSettings();
-        this.render();
-      })
-    );
-    new import_obsidian.Setting(el).setName(this.t("Use LLM enhancement")).addToggle((t) => t.setValue(this.plugin.settings.useLlmEnhancement).onChange(async (v) => {
-      this.plugin.settings.useLlmEnhancement = v;
+    const lang = this.field(el, this.t("Language")).createEl("select");
+    lang.createEl("option", { text: "\uD55C\uAD6D\uC5B4", value: "ko" });
+    lang.createEl("option", { text: "English", value: "en" });
+    lang.value = this.plugin.settings.language;
+    lang.onchange = async () => {
+      this.plugin.settings.language = lang.value;
       await this.plugin.saveSettings();
-    }));
-    new import_obsidian.Setting(el).setName(this.t("Request timeout (ms)")).addText((t) => t.setValue(String(this.plugin.settings.requestTimeoutMs)).onChange(async (v) => {
-      const parsed = Number(v);
-      if (!Number.isNaN(parsed) && parsed >= 3e3) {
-        this.plugin.settings.requestTimeoutMs = parsed;
+      this.render();
+    };
+    const provider = this.field(el, this.t("LLM Provider")).createEl("select");
+    ["none", "gemini", "cerebras"].forEach((p) => provider.createEl("option", { text: p, value: p }));
+    provider.value = this.plugin.settings.provider;
+    provider.onchange = async () => {
+      this.plugin.settings.provider = provider.value;
+      await this.plugin.saveSettings();
+      this.render();
+    };
+    const llmRow = this.field(el, this.t("Use LLM enhancement"));
+    const llmToggle = llmRow.createEl("input", { type: "checkbox" });
+    llmToggle.checked = this.plugin.settings.useLlmEnhancement;
+    llmToggle.onchange = async () => {
+      this.plugin.settings.useLlmEnhancement = llmToggle.checked;
+      await this.plugin.saveSettings();
+    };
+    const timeoutInput = this.field(el, this.t("Request timeout (ms)")).createEl("input", { type: "number" });
+    timeoutInput.value = String(this.plugin.settings.requestTimeoutMs);
+    timeoutInput.onchange = async () => {
+      const v = Number(timeoutInput.value);
+      if (!Number.isNaN(v) && v >= 3e3) {
+        this.plugin.settings.requestTimeoutMs = v;
         await this.plugin.saveSettings();
       }
-    }));
+    };
     if (this.plugin.settings.provider === "gemini") {
-      this.secureTextSetting(el, "Gemini API Key", this.plugin.settings.geminiApiKey, async (v) => {
-        this.plugin.settings.geminiApiKey = v;
-      });
-      new import_obsidian.Setting(el).setName("Gemini Model").addText((t) => t.setValue(this.plugin.settings.geminiModel).onChange(async (v) => {
-        this.plugin.settings.geminiModel = v.trim();
+      const key = this.field(el, "Gemini API Key").createEl("input", { type: this.plugin.settings.maskSensitiveFields ? "password" : "text" });
+      key.value = this.plugin.settings.geminiApiKey;
+      key.onchange = async () => {
+        this.plugin.settings.geminiApiKey = key.value.trim();
         await this.plugin.saveSettings();
-      }));
+      };
+      const model = this.field(el, "Gemini Model").createEl("input", { type: "text" });
+      model.value = this.plugin.settings.geminiModel;
+      model.onchange = async () => {
+        this.plugin.settings.geminiModel = model.value.trim();
+        await this.plugin.saveSettings();
+      };
     }
     if (this.plugin.settings.provider === "cerebras") {
-      this.secureTextSetting(el, "Cerebras API Key", this.plugin.settings.cerebrasApiKey, async (v) => {
-        this.plugin.settings.cerebrasApiKey = v;
-      });
-      new import_obsidian.Setting(el).setName("Cerebras Model").addText((t) => t.setValue(this.plugin.settings.cerebrasModel).onChange(async (v) => {
-        this.plugin.settings.cerebrasModel = v.trim();
+      const key = this.field(el, "Cerebras API Key").createEl("input", { type: this.plugin.settings.maskSensitiveFields ? "password" : "text" });
+      key.value = this.plugin.settings.cerebrasApiKey;
+      key.onchange = async () => {
+        this.plugin.settings.cerebrasApiKey = key.value.trim();
         await this.plugin.saveSettings();
-      }));
+      };
+      const model = this.field(el, "Cerebras Model").createEl("input", { type: "text" });
+      model.value = this.plugin.settings.cerebrasModel;
+      model.onchange = async () => {
+        this.plugin.settings.cerebrasModel = model.value.trim();
+        await this.plugin.saveSettings();
+      };
     }
+    const maskRow = this.field(el, this.t("Mask API key fields"));
+    const mask = maskRow.createEl("input", { type: "checkbox" });
+    mask.checked = this.plugin.settings.maskSensitiveFields;
+    mask.onchange = async () => {
+      this.plugin.settings.maskSensitiveFields = mask.checked;
+      await this.plugin.saveSettings();
+      this.render();
+    };
     el.createEl("p", { cls: "plugin-compass-warning", text: this.t("Never share vault files containing plaintext keys.") });
-  }
-  secureTextSetting(el, name, value, assign) {
-    new import_obsidian.Setting(el).setName(name).setDesc(this.t("Stored in local plugin settings.")).addText((t) => {
-      t.setValue(value);
-      t.inputEl.type = this.plugin.settings.maskSensitiveFields ? "password" : "text";
-      t.onChange(async (v) => {
-        await assign(v.trim());
-        await this.plugin.saveSettings();
-      });
-    }).addExtraButton(
-      (b) => b.setIcon(this.plugin.settings.maskSensitiveFields ? "eye-off" : "eye").setTooltip(this.t("Toggle mask")).onClick(async () => {
-        this.plugin.settings.maskSensitiveFields = !this.plugin.settings.maskSensitiveFields;
-        await this.plugin.saveSettings();
-        this.render();
-      })
-    );
   }
   renderDiscover(el) {
     el.createEl("p", { text: this.t("Tip: click a plugin row to see details and install actions below.") });
-    const controls = el.createDiv({ cls: "plugin-compass-controls" });
-    const categories = getCategories();
-    new import_obsidian.Setting(controls).setName(this.t("Search")).addText((t) => t.setPlaceholder("dataview, task...").onChange((v) => {
-      this.filters.search = v.toLowerCase();
+    const search = this.field(el, this.t("Search")).createEl("input", { type: "text" });
+    search.placeholder = "dataview, task...";
+    search.value = this.filters.search;
+    search.oninput = () => {
+      this.filters.search = search.value.toLowerCase();
       this.render();
-    }));
-    new import_obsidian.Setting(controls).setName(this.t("Category")).addDropdown((d) => {
-      d.addOption("all", "All");
-      categories.forEach((c) => d.addOption(c, c));
-      d.setValue(this.filters.category).onChange((v) => {
-        this.filters.category = v;
-        this.render();
-      });
-    });
-    new import_obsidian.Setting(controls).setName(this.t("Difficulty")).addDropdown((d) => d.addOption("any", "Any").addOption("beginner", "Beginner").addOption("intermediate", "Intermediate").addOption("advanced", "Advanced").setValue(this.filters.difficulty).onChange((v) => {
-      this.filters.difficulty = v;
+    };
+    const cat = this.field(el, this.t("Category")).createEl("select");
+    cat.createEl("option", { text: "All", value: "all" });
+    getCategories().forEach((c) => cat.createEl("option", { text: c, value: c }));
+    cat.value = this.filters.category;
+    cat.onchange = () => {
+      this.filters.category = cat.value;
       this.render();
-    }));
-    new import_obsidian.Setting(controls).setName(this.t("Mobile support")).addDropdown((d) => d.addOption("all", "All").addOption("yes", "Yes").addOption("no", "No").setValue(this.filters.mobile).onChange((v) => {
-      this.filters.mobile = v;
-      this.render();
-    }));
-    new import_obsidian.Setting(controls).setName(this.t("Sort")).addDropdown((d) => d.addOption("score", "Score").addOption("name", "Name").addOption("difficulty", "Difficulty").setValue(this.filters.sortBy).onChange((v) => {
-      this.filters.sortBy = v;
-      this.render();
-    })).addDropdown((d) => d.addOption("desc", "Desc").addOption("asc", "Asc").setValue(this.filters.sortOrder).onChange((v) => {
-      this.filters.sortOrder = v;
-      this.render();
-    }));
+    };
     const list = this.filteredPlugins();
     el.createEl("p", { text: `${list.length} plugins` });
     const table = el.createEl("table", { cls: "plugin-compass-table" });
     const head = table.createEl("thead").createEl("tr");
     ["Name", "Category", "Difficulty", "Mobile", "Score"].forEach((x) => head.createEl("th", { text: x }));
     const body = table.createEl("tbody");
-    list.slice(0, 60).forEach((p) => {
+    list.slice(0, 80).forEach((p) => {
       const row = body.createEl("tr");
       row.onclick = () => {
         this.selectedPlugin = p;
@@ -7561,45 +7556,39 @@ var CompassModal = class extends import_obsidian.Modal {
     card.createEl("p", { text: `${this.t("Pros")}: ${p.pros[this.plugin.settings.language].join(", ")}` });
     card.createEl("p", { text: `${this.t("Cons")}: ${p.cons[this.plugin.settings.language].join(", ")}` });
     card.createEl("p", { text: `Tags: ${p.tags.join(", ")}` });
-    card.createEl("p", { cls: "plugin-compass-warning", text: this.t("Obsidian security policy may require manual enable after opening installer.") });
-    new import_obsidian.Setting(card).setName(this.t("Plugin URL")).setDesc(p.pluginUrl).addButton((b) => b.setButtonText(this.t("Copy ID link")).onClick(async () => {
-      await navigator.clipboard.writeText(p.pluginUrl);
-      new import_obsidian.Notice(this.t("Copied"));
-    }));
     const installUri = `obsidian://show-plugin?id=${p.id}`;
-    new import_obsidian.Setting(card).setName(this.t("Install command")).setDesc(installUri).addButton((b) => b.setButtonText(this.t("Open installer")).setCta().onClick(() => {
-      window.open(installUri, "_blank");
-    })).addButton((b) => b.setButtonText(this.t("Copy command")).onClick(async () => {
+    const btns = card.createDiv({ cls: "plugin-compass-btnrow" });
+    const openBtn = btns.createEl("button", { text: this.t("Open installer") });
+    openBtn.onclick = () => window.open(installUri, "_blank");
+    const copyBtn = btns.createEl("button", { text: this.t("Copy command") });
+    copyBtn.onclick = async () => {
       await navigator.clipboard.writeText(installUri);
       new import_obsidian.Notice(this.t("Copied"));
-    }));
+    };
   }
   renderRecommend(el) {
-    const categories = getCategories();
-    new import_obsidian.Setting(el).setName(this.t("Purpose")).addDropdown((d) => d.addOption("research", this.t("Research")).addOption("writing", this.t("Writing")).addOption("productivity", this.t("Productivity")).setValue(this.profile.purpose).onChange((v) => this.profile.purpose = v));
-    new import_obsidian.Setting(el).setName(this.t("Beginner mode")).addToggle((t) => t.setValue(this.profile.beginner).onChange((v) => this.profile.beginner = v));
-    new import_obsidian.Setting(el).setName(this.t("Prefer mobile")).addToggle((t) => t.setValue(this.profile.preferMobile).onChange((v) => this.profile.preferMobile = v));
-    new import_obsidian.Setting(el).setName(this.t("Preferred category")).addDropdown((d) => {
-      d.addOption("all", "All");
-      categories.forEach((c) => d.addOption(c, c));
-      d.setValue(this.profile.preferredCategory).onChange((v) => this.profile.preferredCategory = v);
-    });
-    new import_obsidian.Setting(el).setName(this.t("Preferred difficulty")).addDropdown((d) => d.addOption("any", "Any").addOption("beginner", "Beginner").addOption("intermediate", "Intermediate").addOption("advanced", "Advanced").setValue(this.profile.preferredDifficulty).onChange((v) => this.profile.preferredDifficulty = v));
+    const purpose = this.field(el, this.t("Purpose")).createEl("select");
+    purpose.createEl("option", { value: "research", text: this.t("Research") });
+    purpose.createEl("option", { value: "writing", text: this.t("Writing") });
+    purpose.createEl("option", { value: "productivity", text: this.t("Productivity") });
+    purpose.value = this.profile.purpose;
+    purpose.onchange = () => this.profile.purpose = purpose.value;
+    const beginner = this.field(el, this.t("Beginner mode")).createEl("input", { type: "checkbox" });
+    beginner.checked = this.profile.beginner;
+    beginner.onchange = () => this.profile.beginner = beginner.checked;
     const out = el.createDiv();
-    new import_obsidian.Setting(el).addButton((b) => b.setButtonText(this.t("Run recommendation")).setCta().onClick(async () => {
+    const runBtn = el.createEl("button", { text: this.t("Run recommendation") });
+    runBtn.onclick = async () => {
       out.empty();
       const rec = recommend(this.profile);
-      let plan = `# Plugin Compass Setup Plan
-
-`;
+      let plan = "# Plugin Compass Setup Plan\n\n";
       for (const item of rec.slice(0, 10)) {
-        const div = out.createDiv({ cls: "plugin-compass-card" });
-        div.createEl("h4", { text: item.name[this.plugin.settings.language] });
-        div.createEl("p", { text: item.summary[this.plugin.settings.language] });
+        const d = out.createDiv({ cls: "plugin-compass-card" });
+        d.createEl("h4", { text: item.name[this.plugin.settings.language] });
+        d.createEl("p", { text: item.summary[this.plugin.settings.language] });
         plan += `## ${item.name.en}
 - ID: ${item.id}
 - Link: ${item.pluginUrl}
-- Why: ${item.summary.en}
 
 `;
       }
@@ -7608,36 +7597,43 @@ var CompassModal = class extends import_obsidian.Modal {
           const improved = await enhanceTextWithLlm(this.plugin.settings, plan);
           out.createEl("pre", { text: improved });
           plan = improved;
-        } catch (error) {
-          new import_obsidian.Notice(error?.message ?? "LLM request failed");
+        } catch (e) {
+          new import_obsidian.Notice(e?.message ?? "LLM request failed");
         }
       }
-      new import_obsidian.Setting(out).addButton((b2) => b2.setButtonText(this.t("Export setup plan markdown")).onClick(async () => {
+      const exportBtn = out.createEl("button", { text: this.t("Export setup plan markdown") });
+      exportBtn.onclick = async () => {
         const dir = this.plugin.settings.weeklyReportFolder.trim() || "Plugin Compass";
         await this.app.vault.createFolder(dir).catch(() => void 0);
         const path = `${dir}/plugin-compass-setup-plan-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}.md`;
         await this.app.vault.adapter.write(path, plan);
         new import_obsidian.Notice(`${this.t("Saved")}: ${path}`);
-      }));
-    }));
+      };
+    };
   }
   renderWeekly(el) {
-    new import_obsidian.Setting(el).setName(this.t("Metadata source URLs")).setDesc("One URL per line").addTextArea((t) => t.setValue(this.plugin.settings.metadataSourceUrls).onChange(async (v) => {
-      this.plugin.settings.metadataSourceUrls = v;
+    const sources = this.field(el, this.t("Metadata source URLs")).createEl("textarea");
+    sources.value = this.plugin.settings.metadataSourceUrls;
+    sources.rows = 5;
+    sources.onchange = async () => {
+      this.plugin.settings.metadataSourceUrls = sources.value;
       await this.plugin.saveSettings();
-    }));
-    new import_obsidian.Setting(el).setName(this.t("Weekly report folder")).addText((t) => t.setValue(this.plugin.settings.weeklyReportFolder).onChange(async (v) => {
-      this.plugin.settings.weeklyReportFolder = v.trim() || "Plugin Compass";
+    };
+    const folder = this.field(el, this.t("Weekly report folder")).createEl("input", { type: "text" });
+    folder.value = this.plugin.settings.weeklyReportFolder;
+    folder.onchange = async () => {
+      this.plugin.settings.weeklyReportFolder = folder.value.trim() || "Plugin Compass";
       await this.plugin.saveSettings();
-    }));
-    new import_obsidian.Setting(el).addButton((b) => b.setButtonText(this.t("Run update now")).setCta().onClick(async () => {
+    };
+    const run = el.createEl("button", { text: this.t("Run update now") });
+    run.onclick = async () => {
       try {
         const file = await this.plugin.runWeeklyUpdate();
         new import_obsidian.Notice(`${this.t("Saved")}: ${file}`);
       } catch (error) {
         new import_obsidian.Notice(error?.message ?? "Failed to run weekly update");
       }
-    }));
+    };
   }
   filteredPlugins() {
     const list = PLUGINS.filter((p) => {
@@ -7646,18 +7642,9 @@ var CompassModal = class extends import_obsidian.Modal {
         if (!hay.includes(this.filters.search)) return false;
       }
       if (this.filters.category !== "all" && p.category !== this.filters.category) return false;
-      if (this.filters.difficulty !== "any" && p.difficulty !== this.filters.difficulty) return false;
-      if (this.filters.mobile === "yes" && !p.mobileSupport) return false;
-      if (this.filters.mobile === "no" && p.mobileSupport) return false;
       return true;
     });
-    list.sort((a, b) => {
-      let compare = 0;
-      if (this.filters.sortBy === "score") compare = a.recommendationScore - b.recommendationScore;
-      if (this.filters.sortBy === "name") compare = a.name.en.localeCompare(b.name.en);
-      if (this.filters.sortBy === "difficulty") compare = a.difficulty.localeCompare(b.difficulty);
-      return this.filters.sortOrder === "asc" ? compare : -compare;
-    });
+    list.sort((a, b) => b.recommendationScore - a.recommendationScore);
     return list;
   }
   t(input) {
@@ -7669,22 +7656,15 @@ var CompassModal = class extends import_obsidian.Modal {
       "Weekly Update": "\uC8FC\uAC04 \uC5C5\uB370\uC774\uD2B8",
       "What Plugin Compass does": "Plugin Compass\uAC00 \uD558\uB294 \uC77C",
       "It helps you discover Obsidian plugins with clear pros/cons, then generates a setup plan in Korean or English.": "Obsidian \uD50C\uB7EC\uADF8\uC778\uC744 \uC7A5\uB2E8\uC810 \uC911\uC2EC\uC73C\uB85C \uC27D\uAC8C \uD0D0\uC0C9\uD558\uACE0, \uD55C\uAD6D\uC5B4/\uC601\uC5B4 \uC124\uCE58 \uD50C\uB79C\uC744 \uC0DD\uC131\uD569\uB2C8\uB2E4.",
-      "Flow: Setup \u2192 Discover \u2192 Recommend \u2192 Export plan / Weekly update.": "\uD750\uB984: \uC124\uC815 \u2192 \uD0D0\uC0C9 \u2192 \uCD94\uCC9C \u2192 \uC124\uCE58 \uD50C\uB79C \uB0B4\uBCF4\uB0B4\uAE30 / \uC8FC\uAC04 \uC5C5\uB370\uC774\uD2B8",
       Language: "\uC5B8\uC5B4",
       "LLM Provider": "LLM \uC81C\uACF5\uC790",
       "Use LLM enhancement": "LLM \uAC1C\uC120 \uC0AC\uC6A9",
       "Request timeout (ms)": "\uC694\uCCAD \uD0C0\uC784\uC544\uC6C3(ms)",
-      "Never share vault files containing plaintext keys.": "API \uD0A4\uAC00 \uD3EC\uD568\uB41C \uD3C9\uBB38 \uC124\uC815 \uD30C\uC77C\uC744 \uACF5\uC720\uD558\uC9C0 \uB9C8\uC138\uC694.",
+      "Mask API key fields": "API \uD0A4 \uB9C8\uC2A4\uD0B9",
       Search: "\uAC80\uC0C9",
       Category: "\uCE74\uD14C\uACE0\uB9AC",
-      Difficulty: "\uB09C\uC774\uB3C4",
-      "Mobile support": "\uBAA8\uBC14\uC77C \uC9C0\uC6D0",
-      Sort: "\uC815\uB82C",
       Pros: "\uC7A5\uC810",
       Cons: "\uB2E8\uC810",
-      "Plugin URL": "\uD50C\uB7EC\uADF8\uC778 URL",
-      "Copy ID link": "ID \uB9C1\uD06C \uBCF5\uC0AC",
-      "Install command": "\uC124\uCE58 \uBA85\uB839",
       "Open installer": "\uC124\uCE58\uCC3D \uC5F4\uAE30",
       "Copy command": "\uBA85\uB839 \uBCF5\uC0AC",
       Copied: "\uBCF5\uC0AC \uC644\uB8CC",
@@ -7693,18 +7673,13 @@ var CompassModal = class extends import_obsidian.Modal {
       Writing: "\uAE00\uC4F0\uAE30",
       Productivity: "\uC0DD\uC0B0\uC131",
       "Beginner mode": "\uCD08\uBCF4 \uBAA8\uB4DC",
-      "Prefer mobile": "\uBAA8\uBC14\uC77C \uC120\uD638",
-      "Preferred category": "\uC120\uD638 \uCE74\uD14C\uACE0\uB9AC",
-      "Preferred difficulty": "\uC120\uD638 \uB09C\uC774\uB3C4",
       "Run recommendation": "\uCD94\uCC9C \uC2E4\uD589",
       "Export setup plan markdown": "\uC124\uCE58 \uD50C\uB79C \uB9C8\uD06C\uB2E4\uC6B4 \uB0B4\uBCF4\uB0B4\uAE30",
       Saved: "\uC800\uC7A5\uB428",
       "Metadata source URLs": "\uBA54\uD0C0\uB370\uC774\uD130 \uC18C\uC2A4 URL",
       "Weekly report folder": "\uC8FC\uAC04 \uB9AC\uD3EC\uD2B8 \uD3F4\uB354",
       "Run update now": "\uC9C0\uAE08 \uC5C5\uB370\uC774\uD2B8 \uC2E4\uD589",
-      "Toggle mask": "\uB9C8\uC2A4\uD0B9 \uC804\uD658",
-      "Stored in local plugin settings.": "\uB85C\uCEEC \uD50C\uB7EC\uADF8\uC778 \uC124\uC815\uC5D0 \uC800\uC7A5\uB429\uB2C8\uB2E4.",
-      "Obsidian security policy may require manual enable after opening installer.": "Obsidian \uBCF4\uC548 \uC815\uCC45\uC0C1 \uC124\uCE58\uCC3D\uC744 \uC5F4\uC5B4\uB3C4 \uC218\uB3D9 \uD65C\uC131\uD654\uAC00 \uD544\uC694\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.",
+      "Never share vault files containing plaintext keys.": "API \uD0A4\uAC00 \uD3EC\uD568\uB41C \uD3C9\uBB38 \uC124\uC815 \uD30C\uC77C\uC744 \uACF5\uC720\uD558\uC9C0 \uB9C8\uC138\uC694.",
       "Tip: click a plugin row to see details and install actions below.": "\uD301: \uD50C\uB7EC\uADF8\uC778 \uD589\uC744 \uD074\uB9AD\uD558\uBA74 \uC544\uB798\uC5D0 \uC0C1\uC138\uC815\uBCF4\uC640 \uC124\uCE58 \uB3D9\uC791\uC774 \uB098\uD0C0\uB0A9\uB2C8\uB2E4."
     };
     return ko[input] ?? input;
@@ -7719,7 +7694,7 @@ var PluginCompassSettingTab = class extends import_obsidian.PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     containerEl.createEl("h2", { text: "Plugin Compass" });
-    new import_obsidian.Setting(containerEl).setName("Open modal").setDesc("Use the modal tabs for setup, discovery, recommendation, and weekly update.").addButton((b) => b.setButtonText("Open").onClick(() => new CompassModal(this.app, this.plugin).open()));
+    new import_obsidian.Setting(containerEl).setName("Open modal").setDesc("Use modal tabs for all operations.").addButton((b) => b.setButtonText("Open").onClick(() => new CompassModal(this.app, this.plugin).open()));
   }
 };
 //# sourceMappingURL=main.js.map
